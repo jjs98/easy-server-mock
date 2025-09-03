@@ -43,6 +43,8 @@ jobs:
     name: Publish
     needs: build
     runs-on: ubuntu-latest
+    environment:
+        name: production
     timeout-minutes: 20
     if: github.ref == 'refs/heads/main'
     permissions:
