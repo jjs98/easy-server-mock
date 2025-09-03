@@ -1,4 +1,4 @@
-﻿namespace EasyServerMock.Client;
+﻿namespace EasyServerMock;
 
 public record MockRequest(
     HttpMethod Method,

@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace EasyServerMock.Client;
+namespace EasyServerMock;
 
 public partial class ServerMockClient
 {

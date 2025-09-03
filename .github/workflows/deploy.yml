@@ -1,0 +1,76 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+   build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: set up .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.x
+
+      - name: dotnet restore
+        run: dotnet restore ./EasyServerMock.sln
+
+      - name: dotnet test
+        run: dotnet test ./EasyServerMock.sln
+
+      - name: dotnet build
+        run: dotnet build ./EasyServerMock.sln --configuration Release
+
+      - name: dotnet pack
+        run: dotnet pack ./EasyServerMock.sln --configuration Release --output ./artifacts
+        
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: artifacts
+
+   publish:
+    name: Publish
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: artifacts
+          
+      - name: publish to NuGet
+        run: dotnet nuget push ./artifacts/*.nupkg --source ${{ secrets.NUGET_SOURCE }} --api-key ${{ secrets.NUGET_API_KEY }}
+
+      - name: publish to GitHub Packages
+        run: dotnet nuget push ./artifacts/*.nupkg --source ${{ secrets.PACKAGES_SOURCE_GITHUB }} --api-key ${{ secrets.TOKEN_GITHUB }}
+
+      - name: Get version from .csproj
+        run: echo "version=$(grep -oP '(?<=<Version>)(.*)(?=</Version>)' ./EasyServerMock/EasyServerMock.csproj)" >> $GITHUB_ENV
+
+      - name: Create Tag for EasyServerMock
+        uses: rickstaa/action-create-tag@v1
+        if: ${{ !cancelled() }}
+        with:
+          tag: v${{ steps.publish.outputs.version }}
+          tag_exists_error: false

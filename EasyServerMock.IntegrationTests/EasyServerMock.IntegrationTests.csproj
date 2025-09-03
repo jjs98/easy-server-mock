@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EasyServerMock.Client\EasyServerMock.Client.csproj" />
+    <ProjectReference Include="..\EasyServerMock\EasyServerMock.csproj" />
   </ItemGroup>
 
   <ItemGroup>

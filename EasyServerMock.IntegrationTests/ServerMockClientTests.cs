@@ -5,7 +5,7 @@ using System.Net.Mime;
 using System.Text.Json;
 using FluentAssertions;
 
-namespace EasyServerMock.Client.IntegrationTests;
+namespace EasyServerMock.IntegrationTests;
 
 public record TestResponse(string Message);
 

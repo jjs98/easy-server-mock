@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 
-namespace EasyServerMock.Client;
+namespace EasyServerMock;
 
 /// <summary>
 /// Create a client to connect to a server mock instance
