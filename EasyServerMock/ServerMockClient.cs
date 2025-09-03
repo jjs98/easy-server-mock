@@ -111,12 +111,32 @@ public partial class ServerMockClient(int port = 7900) : IDisposable
     }
 
     /// <summary>
+    /// Get all requests made to the server mock
+    /// </summary>
+    /// <returns></returns>
+    public List<MockRequest> GetRequests() => GetRequests(null, null);
+
+    /// <summary>
+    /// Get all requests made to the server mock, filtered by path
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public List<MockRequest> GetRequests(string path) => GetRequests(path, null);
+
+    /// <summary>
+    /// Get all requests made to the server mock, filtered by HTTP method
+    /// </summary>
+    /// <param name="httpMethod"></param>
+    /// <returns></returns>
+    public List<MockRequest> GetRequests(HttpMethod httpMethod) => GetRequests(null, httpMethod);
+
+    /// <summary>
     /// Get all requests made to the server mock, optionally filtered by path and/or HTTP method
     /// </summary>
     /// <param name="path"></param>
     /// <param name="httpMethod"></param>
     /// <returns>A List of MockRequests</returns>
-    public List<MockRequest> GetRequests(string? path = null, HttpMethod? httpMethod = null)
+    public List<MockRequest> GetRequests(string? path, HttpMethod? httpMethod)
     {
         return
         [

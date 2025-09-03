@@ -127,7 +127,7 @@ public class ServerMockClientTests
         );
 
         // Assert
-        var requests = client.GetRequests(httpMethod: HttpMethod.Get);
+        var requests = client.GetRequests(HttpMethod.Get);
         requests.Should().HaveCount(2);
         await ValidateResponse(response1, "Response 1");
         await ValidateResponse(response2, "Response 2");
@@ -494,7 +494,7 @@ public class ServerMockClientTests
         // Assert
         client.GetRequests("/test1", HttpMethod.Post).Should().HaveCount(0);
         client.GetRequests("/test1").Should().HaveCount(0);
-        client.GetRequests(httpMethod: HttpMethod.Post).Should().HaveCount(0);
+        client.GetRequests(HttpMethod.Post).Should().HaveCount(0);
         client.GetRequests().Should().HaveCount(1);
     }
 
