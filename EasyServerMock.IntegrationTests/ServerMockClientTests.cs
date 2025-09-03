@@ -460,6 +460,22 @@ public class ServerMockClientTests
         requests.Should().HaveCount(1);
     }
 
+    [Fact]
+    public async Task ServerMockClient_ShouldReturnEmptyResponses_WhenNoCallsMade()
+    {
+        // Arrange
+        var client = new ServerMockClient(7918);
+        await client.StartAsync();
+        client.Get("/test").WithResponse(new TestResponse("OK")).Provide();
+
+        // Act
+        // Assert
+        client.GetRequests("/test", HttpMethod.Get).Should().HaveCount(0);
+        client.GetRequests("/test").Should().HaveCount(0);
+        client.GetRequests(httpMethod: HttpMethod.Get).Should().HaveCount(0);
+        client.GetRequests().Should().HaveCount(0);
+    }
+
     private static async Task ValidateResponse(
         HttpResponseMessage response,
         string expectedMessage,
