@@ -68,7 +68,15 @@ public partial class ServerMockClient(int port = 7900) : IDisposable
                                 {
                                     context.Response.Headers[header.Key] = header.Value;
                                 }
-                                await context.Response.WriteAsJsonAsync(mockResponse.Response);
+                                if (mockResponse.Response is not null)
+                                {
+                                    context.Response.ContentType = "application/json";
+                                    await context.Response.WriteAsJsonAsync(mockResponse.Response);
+                                }
+                                if (mockResponse.DelayMilliseconds > 0)
+                                {
+                                    await Task.Delay(mockResponse.DelayMilliseconds);
+                                }
                             }
                             else
                             {
@@ -118,12 +126,69 @@ public partial class ServerMockClient(int port = 7900) : IDisposable
         ];
     }
 
-    private void ConfigureEndpoint(
+    /// <summary>
+    /// Begin configuration of a GET endpoint
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public EndpointBuilder Get(string path) => new(this, path, HttpMethod.Get);
+
+    /// <summary>
+    /// Begin configuration of a POST endpoint
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public EndpointBuilder Post(string path) => new(this, path, HttpMethod.Post);
+
+    /// <summary>
+    /// Begin configuration of a PUT endpoint
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public EndpointBuilder Put(string path) => new(this, path, HttpMethod.Put);
+
+    /// <summary>
+    /// Begin configuration of a DELETE endpoint
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public EndpointBuilder Delete(string path) => new(this, path, HttpMethod.Delete);
+
+    /// <summary>
+    /// Begin configuration of a PATCH endpoint
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public EndpointBuilder Patch(string path) => new(this, path, HttpMethod.Patch);
+
+    /// <summary>
+    /// Begin configuration of a HEAD endpoint
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public EndpointBuilder Head(string path) => new(this, path, HttpMethod.Head);
+
+    /// <summary>
+    /// Begin configuration of a OPTIONS endpoint
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public EndpointBuilder Options(string path) => new(this, path, HttpMethod.Options);
+
+    /// <summary>
+    /// Begin configuration of a TRACE endpoint
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public EndpointBuilder Trace(string path) => new(this, path, HttpMethod.Trace);
+
+    internal void ConfigureEndpoint(
         string path,
         HttpMethod method,
-        object responseBody,
+        object? responseBody,
         Dictionary<string, string> headers,
-        HttpStatusCode statusCode
+        HttpStatusCode statusCode,
+        int delayMilliseconds
     )
     {
         if (!_endpointResponses.TryGetValue(path, out _))
@@ -131,6 +196,7 @@ public partial class ServerMockClient(int port = 7900) : IDisposable
             _endpointResponses[path] = [];
         }
 
-        _endpointResponses[path].TryAdd(method, new(responseBody, headers, statusCode));
+        _endpointResponses[path]
+            .TryAdd(method, new(responseBody, headers, statusCode, delayMilliseconds));
     }
 }

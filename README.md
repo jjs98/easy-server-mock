@@ -37,7 +37,7 @@ public class ServerMockClientTests
         var message = "Hello World";
 
         await client.StartAsync();
-        client.ConfigurePost("/test", new TestResponse(message));
+        client.Post("/test").WithResponse(new TestResponse(message)).Provide();
         var httpClient = new HttpClient();
         var request = new TestRequest("Test");
         var json = JsonSerializer.Serialize(request);
@@ -64,12 +64,14 @@ public class ServerMockClientTests
         // Arrange
         var client = new ServerMockClient(7913);
         await client.StartAsync();
-        client.ConfigureGet("/test", new TestResponse("OK"), HttpStatusCode.OK);
+        client.Get("/test").WithResponse(new TestResponse("OK")).WithStatusCode(HttpStatusCode.OK).Provide();
         using var httpClient = new HttpClient();
         var guid = Guid.NewGuid().ToString();
         httpClient.DefaultRequestHeaders.Add("X-Request-ID", guid);
+
         // Act
         var response = await httpClient.GetAsync("http://localhost:7913/test");
+
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var requests = client.GetRequests("/test", HttpMethod.Get);
@@ -88,10 +90,12 @@ public class ServerMockClientTests
             { "X-Custom-Header", "HeaderValue" },
             { "X-Another-Header", "AnotherValue" }
         };
-        client.ConfigureGet("/test", new TestResponse("OK"), HttpStatusCode.OK, headers);
+        client.Get("/test").WithResponse(new TestResponse("OK")).WithStatusCode(HttpStatusCode.OK).WithHeaders(headers).Provide();
         using var httpClient = new HttpClient();
+
         // Act
         var response = await httpClient.GetAsync("http://localhost:7914/test");
+
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Headers.Contains("X-Custom-Header").Should().BeTrue();

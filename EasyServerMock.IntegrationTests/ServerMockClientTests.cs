@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Net.Mime;
@@ -21,7 +22,8 @@ public class ServerMockClientTests
         var message = "Hello World";
 
         await client.StartAsync();
-        client.ConfigurePost("/test", new TestResponse(message));
+        client.Post("/test").WithResponse(new TestResponse(message)).Provide();
+
         var httpClient = new HttpClient();
         var request = new TestRequest("Test");
         var json = JsonSerializer.Serialize(request);
@@ -110,8 +112,8 @@ public class ServerMockClientTests
         var response2Body = new TestResponse("Response 2");
         var client = new ServerMockClient(7905);
         await client.StartAsync();
-        client.ConfigureGet("/test1", response1Body);
-        client.ConfigureGet("/test2", response2Body);
+        client.Get("/test1").WithResponse(response1Body).Provide();
+        client.Get("/test2").WithResponse(response2Body).Provide();
 
         // Act
         using var httpClient = new HttpClient();
@@ -141,8 +143,8 @@ public class ServerMockClientTests
         var client2 = new ServerMockClient(7907);
         await client1.StartAsync();
         await client2.StartAsync();
-        client1.ConfigureGet("/test", response1Body);
-        client2.ConfigureGet("/test", response2Body);
+        client1.Get("/test").WithResponse(response1Body).Provide();
+        client2.Get("/test").WithResponse(response2Body).Provide();
 
         // Act
         using var httpClient = new HttpClient();
@@ -170,7 +172,11 @@ public class ServerMockClientTests
         // Arrange
         var client = new ServerMockClient(7908);
         await client.StartAsync();
-        client.ConfigureGet("/test", new { Message = "Created" }, HttpStatusCode.Created);
+        client
+            .Get("/test")
+            .WithResponse(new TestResponse("Created"))
+            .WithStatusCode(HttpStatusCode.Created)
+            .Provide();
         using var httpClient = new HttpClient();
 
         // Act
@@ -189,7 +195,7 @@ public class ServerMockClientTests
         // Arrange
         var client = new ServerMockClient(7909);
         await client.StartAsync();
-        client.ConfigureGet("/test", new TestResponse("OK"));
+        client.Get("/test").WithResponse(new TestResponse("OK")).Provide();
         using var httpClient = new HttpClient();
 
         // Act
@@ -234,7 +240,7 @@ public class ServerMockClientTests
         // Arrange
         var client = new ServerMockClient(7911);
         await client.StartAsync();
-        client.ConfigureGet("/test", new TestResponse("OK"));
+        client.Get("/test").WithResponse(new TestResponse("OK")).Provide();
         using var httpClient = new HttpClient();
 
         // Act
@@ -257,14 +263,15 @@ public class ServerMockClientTests
         // Arrange
         var client = new ServerMockClient(7912);
         await client.StartAsync();
-        client.ConfigureGet("/test", new TestResponse("GET OK"));
-        client.ConfigurePost("/test", new TestResponse("POST OK"));
-        client.ConfigurePatch("/test", new TestResponse("PATCH OK"));
-        client.ConfigurePut("/test", new TestResponse("PUT OK"));
-        client.ConfigureDelete("/test", new TestResponse("DELETE OK"));
-        client.ConfigureHead("/test", new TestResponse("HEAD OK"));
-        client.ConfigureOptions("/test", new TestResponse("OPTIONS OK"));
-        client.ConfigureTrace("/test", new TestResponse("TRACE OK"));
+
+        client.Get("/test").WithResponse(new TestResponse("GET OK")).Provide();
+        client.Post("/test").WithResponse(new TestResponse("POST OK")).Provide();
+        client.Patch("/test").WithResponse(new TestResponse("PATCH OK")).Provide();
+        client.Put("/test").WithResponse(new TestResponse("PUT OK")).Provide();
+        client.Delete("/test").WithResponse(new TestResponse("DELETE OK")).Provide();
+        client.Head("/test").WithResponse(new TestResponse("HEAD OK")).Provide();
+        client.Options("/test").WithResponse(new TestResponse("OPTIONS OK")).Provide();
+        client.Trace("/test").WithResponse(new TestResponse("TRACE OK")).Provide();
 
         using var httpClient = new HttpClient();
 
@@ -339,15 +346,17 @@ public class ServerMockClientTests
         // Arrange
         var client = new ServerMockClient(7913);
         await client.StartAsync();
-        client.ConfigureGet("/test", new TestResponse("OK"), HttpStatusCode.OK);
+        client.Get("/test").WithResponse(new TestResponse("OK")).Provide();
         using var httpClient = new HttpClient();
         var guid = Guid.NewGuid().ToString();
         httpClient.DefaultRequestHeaders.Add("X-Request-ID", guid);
+
         // Act
         var response = await httpClient.GetAsync(
             "http://localhost:7913/test",
             TestContext.Current.CancellationToken
         );
+
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var requests = client.GetRequests("/test", HttpMethod.Get);
@@ -366,13 +375,15 @@ public class ServerMockClientTests
             { "X-Custom-Header", "HeaderValue" },
             { "X-Another-Header", "AnotherValue" }
         };
-        client.ConfigureGet("/test", new TestResponse("OK"), HttpStatusCode.OK, headers);
+        client.Get("/test").WithResponse(new TestResponse("OK")).WithHeaders(headers).Provide();
         using var httpClient = new HttpClient();
+
         // Act
         var response = await httpClient.GetAsync(
             "http://localhost:7914/test",
             TestContext.Current.CancellationToken
         );
+
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Headers.Contains("X-Custom-Header").Should().BeTrue();
@@ -387,19 +398,66 @@ public class ServerMockClientTests
         // Arrange
         var client = new ServerMockClient(7915);
         await client.StartAsync();
-        client.ConfigureGet("/test", new TestResponse("OK"), HttpStatusCode.OK);
+        client.Get("/test").WithResponse(new TestResponse("OK")).Provide();
         using var httpClient = new HttpClient();
+
         // Act
         var response = await httpClient.GetAsync(
             "http://localhost:7915/test?user=test&lang=en",
             TestContext.Current.CancellationToken
         );
+
         // Assert
         await ValidateResponse(response, "OK");
         var requests = client.GetRequests("/test", HttpMethod.Get);
         requests.Should().HaveCount(1);
         requests[0].QueryParameters["user"].Should().Be("test");
         requests[0].QueryParameters["lang"].Should().Be("en");
+    }
+
+    [Fact]
+    public async Task ServerMockClient_ShouldHandleNoContentResponse()
+    {
+        // Arrange
+        var client = new ServerMockClient(7916);
+        await client.StartAsync();
+        client.Get("/test").Provide();
+        using var httpClient = new HttpClient();
+
+        // Act
+        var response = await httpClient.GetAsync(
+            "http://localhost:7916/test",
+            TestContext.Current.CancellationToken
+        );
+
+        // Assert
+        await ValidateResponse(response, string.Empty, expectJson: false);
+        var requests = client.GetRequests("/test", HttpMethod.Get);
+        requests.Should().HaveCount(1);
+    }
+
+    [Fact]
+    public async Task ServerMockClient_ShouldHandleDelay()
+    {
+        // Arrange
+        var client = new ServerMockClient(7917);
+        await client.StartAsync();
+        client.Get("/test").WithResponse(new TestResponse("OK")).WithDelay(200).Provide();
+        using var httpClient = new HttpClient();
+        var stopwatch = Stopwatch.StartNew();
+
+        // Act
+        var response = await httpClient.GetAsync(
+            "http://localhost:7917/test",
+            TestContext.Current.CancellationToken
+        );
+
+        // Assert
+        stopwatch.Stop();
+        stopwatch.ElapsedMilliseconds.Should().BeGreaterThanOrEqualTo(200);
+        await ValidateResponse(response, "OK");
+        var requests = client.GetRequests("/test", HttpMethod.Get);
+        requests.Should().HaveCount(1);
     }
 
     private static async Task ValidateResponse(
