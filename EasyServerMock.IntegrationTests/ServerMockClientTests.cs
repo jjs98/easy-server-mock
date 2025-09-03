@@ -127,7 +127,7 @@ public class ServerMockClientTests
         );
 
         // Assert
-        var requests = client.GetRequests();
+        var requests = client.GetRequests(httpMethod: HttpMethod.Get);
         requests.Should().HaveCount(2);
         await ValidateResponse(response1, "Response 1");
         await ValidateResponse(response2, "Response 2");
