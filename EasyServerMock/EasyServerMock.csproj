@@ -7,7 +7,7 @@
 		<Version>1.0.0</Version>
 		<Authors>jjs98</Authors>
 		<Description>An easy way to mock third party server in your .net integration tests.</Description>
-		<RepositoryUrl>https://github.com/jjs98/cache-service</RepositoryUrl>
+		<RepositoryUrl>https://github.com/jjs98/easy-server-mock</RepositoryUrl>
 		<PackageTags>mock;test;library</PackageTags>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -21,6 +21,6 @@
 
 	<ItemGroup>
 		<None Include="../README.md" Pack="true" PackagePath="\" />
-		<None Include="../LICENSE" Pack="true" PackagePath="\"/>
+		<None Include="../LICENSE" Pack="true" PackagePath="\" />
 	</ItemGroup>
 </Project>
