@@ -476,6 +476,28 @@ public class ServerMockClientTests
         client.GetRequests().Should().HaveCount(0);
     }
 
+    [Fact]
+    public async Task ServerMockClient_ShouldReturnEmptyResponses_WhenDifferentCallsMade()
+    {
+        // Arrange
+        var client = new ServerMockClient(7919);
+        await client.StartAsync();
+        client.Get("/test").WithResponse(new TestResponse("OK")).Provide();
+        using var httpClient = new HttpClient();
+
+        // Act
+        var response = await httpClient.GetAsync(
+            "http://localhost:7919/test",
+            TestContext.Current.CancellationToken
+        );
+
+        // Assert
+        client.GetRequests("/test1", HttpMethod.Post).Should().HaveCount(0);
+        client.GetRequests("/test1").Should().HaveCount(0);
+        client.GetRequests(httpMethod: HttpMethod.Post).Should().HaveCount(0);
+        client.GetRequests().Should().HaveCount(1);
+    }
+
     private static async Task ValidateResponse(
         HttpResponseMessage response,
         string expectedMessage,
