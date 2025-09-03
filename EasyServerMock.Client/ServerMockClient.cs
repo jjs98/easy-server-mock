@@ -10,7 +10,7 @@ namespace EasyServerMock.Client;
 /// <summary>
 /// Create a client to connect to a server mock instance
 /// </summary>
-public class ServerMockClient(int port = 7900) : IDisposable
+public partial class ServerMockClient(int port = 7900) : IDisposable
 {
     private IHost? _host;
     private readonly ConcurrentDictionary<
@@ -60,6 +60,10 @@ public class ServerMockClient(int port = 7900) : IDisposable
                             )
                             {
                                 context.Response.StatusCode = (int)mockResponse.StatusCode;
+                                foreach (var header in mockResponse.Headers)
+                                {
+                                    context.Response.Headers[header.Key] = header.Value;
+                                }
                                 await context.Response.WriteAsJsonAsync(mockResponse.Response);
                             }
                             else
@@ -94,175 +98,6 @@ public class ServerMockClient(int port = 7900) : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    #region Configure Methods
-    /// <summary>
-    /// Configure a GET endpoint with a response body and a 200 OK status code
-    /// </summary>
-    /// <param name="path"></param>
-    /// <param name="responseBody"></param>
-    public void ConfigureGet(string path, object responseBody)
-    {
-        ConfigureEndpoint(path, HttpMethod.Get, responseBody, HttpStatusCode.OK);
-    }
-
-    /// <summary>
-    /// Configure a GET endpoint with a response body and a specific status code
-    /// </summary>
-    /// <param name="path"></param>
-    /// <param name="responseBody"></param>
-    /// <param name="statusCode"></param>
-    public void ConfigureGet(string path, object responseBody, HttpStatusCode statusCode)
-    {
-        ConfigureEndpoint(path, HttpMethod.Get, responseBody, statusCode);
-    }
-
-    /// <summary>
-    /// Configure a POST endpoint with a response body and a 200 OK status code
-    /// </summary>
-    /// <param name="path"></param>
-    /// <param name="responseBody"></param>
-    public void ConfigurePost(string path, object responseBody)
-    {
-        ConfigureEndpoint(path, HttpMethod.Post, responseBody, HttpStatusCode.OK);
-    }
-
-    /// <summary>
-    /// Configure a POST endpoint with a response body and a specific status code
-    /// </summary>
-    /// <param name="path"></param>
-    /// <param name="responseBody"></param>
-    /// <param name="statusCode"></param>
-    public void ConfigurePost(string path, object responseBody, HttpStatusCode statusCode)
-    {
-        ConfigureEndpoint(path, HttpMethod.Post, responseBody, statusCode);
-    }
-
-    /// <summary>
-    /// Configure a PUT endpoint with a response body and a 200 OK status code
-    /// </summary>
-    /// <param name="path"></param>
-    /// <param name="responseBody"></param>
-    public void ConfigurePut(string path, object responseBody)
-    {
-        ConfigureEndpoint(path, HttpMethod.Put, responseBody, HttpStatusCode.OK);
-    }
-
-    /// <summary>
-    /// Configure a PUT endpoint with a response body and a specific status code
-    /// </summary>
-    /// <param name="path"></param>
-    /// <param name="responseBody"></param>
-    /// <param name="statusCode"></param>
-    public void ConfigurePut(string path, object responseBody, HttpStatusCode statusCode)
-    {
-        ConfigureEndpoint(path, HttpMethod.Put, responseBody, statusCode);
-    }
-
-    /// <summary>
-    /// Configure a DELETE endpoint with a response body and a 200 OK status code
-    /// </summary>
-    /// <param name="path"></param>
-    /// <param name="responseBody"></param>
-    public void ConfigureDelete(string path, object responseBody)
-    {
-        ConfigureEndpoint(path, HttpMethod.Delete, responseBody, HttpStatusCode.OK);
-    }
-
-    /// <summary>
-    /// Configure a DELETE endpoint with a response body and a specific status code
-    /// </summary>
-    /// <param name="path"></param>
-    /// <param name="responseBody"></param>
-    /// <param name="statusCode"></param>
-    public void ConfigureDelete(string path, object responseBody, HttpStatusCode statusCode)
-    {
-        ConfigureEndpoint(path, HttpMethod.Delete, responseBody, statusCode);
-    }
-
-    /// <summary>
-    /// Configure a PATCH endpoint with a response body and a 200 OK status code
-    /// </summary>
-    /// <param name="path"></param>
-    /// <param name="responseBody"></param>
-    public void ConfigurePatch(string path, object responseBody)
-    {
-        ConfigureEndpoint(path, HttpMethod.Patch, responseBody, HttpStatusCode.OK);
-    }
-
-    /// <summary>
-    /// Configure a PATCH endpoint with a response body and a specific status code
-    /// </summary>
-    /// <param name="path"></param>
-    /// <param name="responseBody"></param>
-    /// <param name="statusCode"></param>
-    public void ConfigurePatch(string path, object responseBody, HttpStatusCode statusCode)
-    {
-        ConfigureEndpoint(path, HttpMethod.Patch, responseBody, statusCode);
-    }
-
-    /// <summary>
-    /// Configure a HEAD endpoint with a response body and a 200 OK status code
-    /// </summary>
-    /// <param name="path"></param>
-    /// <param name="responseBody"></param>
-    public void ConfigureHead(string path, object responseBody)
-    {
-        ConfigureEndpoint(path, HttpMethod.Head, responseBody, HttpStatusCode.OK);
-    }
-
-    /// <summary>
-    /// Configure a HEAD endpoint with a response body and a specific status code
-    /// </summary>
-    /// <param name="path"></param>
-    /// <param name="responseBody"></param>
-    /// <param name="statusCode"></param>
-    public void ConfigureHead(string path, object responseBody, HttpStatusCode statusCode)
-    {
-        ConfigureEndpoint(path, HttpMethod.Head, responseBody, statusCode);
-    }
-
-    /// <summary>
-    /// Configure an OPTIONS endpoint with a response body and a 200 OK status code
-    /// </summary>
-    /// <param name="path"></param>
-    /// <param name="responseBody"></param>
-    public void ConfigureOptions(string path, object responseBody)
-    {
-        ConfigureEndpoint(path, HttpMethod.Options, responseBody, HttpStatusCode.OK);
-    }
-
-    /// <summary>
-    /// Configure an OPTIONS endpoint with a response body and a specific status code
-    /// </summary>
-    /// <param name="path"></param>
-    /// <param name="responseBody"></param>
-    /// <param name="statusCode"></param>
-    public void ConfigureOptions(string path, object responseBody, HttpStatusCode statusCode)
-    {
-        ConfigureEndpoint(path, HttpMethod.Options, responseBody, statusCode);
-    }
-
-    /// <summary>
-    /// Configure a TRACE endpoint with a response body and a 200 OK status code
-    /// </summary>
-    /// <param name="path"></param>
-    /// <param name="responseBody"></param>
-    public void ConfigureTrace(string path, object responseBody)
-    {
-        ConfigureEndpoint(path, HttpMethod.Trace, responseBody, HttpStatusCode.OK);
-    }
-
-    /// <summary>
-    /// Configure a TRACE endpoint with a response body and a specific status code
-    /// </summary>
-    /// <param name="path"></param>
-    /// <param name="responseBody"></param>
-    /// <param name="statusCode"></param>
-    public void ConfigureTrace(string path, object responseBody, HttpStatusCode statusCode)
-    {
-        ConfigureEndpoint(path, HttpMethod.Trace, responseBody, statusCode);
-    }
-
     /// <summary>
     /// Get all requests made to the server mock, optionally filtered by path and/or HTTP method
     /// </summary>
@@ -279,19 +114,19 @@ public class ServerMockClient(int port = 7900) : IDisposable
         ];
     }
 
-    #endregion
-
     private void ConfigureEndpoint(
         string path,
         HttpMethod method,
         object responseBody,
+        Dictionary<string, string> headers,
         HttpStatusCode statusCode
     )
     {
-        if (!_endpointResponses.ContainsKey(path))
+        if (!_endpointResponses.TryGetValue(path, out _))
         {
             _endpointResponses[path] = [];
         }
-        _endpointResponses[path].TryAdd(method, new(responseBody, statusCode));
+
+        _endpointResponses[path].TryAdd(method, new(responseBody, headers, statusCode));
     }
 }

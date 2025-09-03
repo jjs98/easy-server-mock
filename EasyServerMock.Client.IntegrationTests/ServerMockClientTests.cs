@@ -295,6 +295,29 @@ public class ServerMockClientTests
         requests[0].Headers["X-Request-ID"].Should().Be(guid);
     }
 
+    [Fact]
+    public async Task ServerMockClient_ShouldReturnHeaders()
+    {
+        // Arrange
+        var client = new ServerMockClient(7914);
+        await client.StartAsync();
+        var headers = new Dictionary<string, string>
+        {
+            { "X-Custom-Header", "HeaderValue" },
+            { "X-Another-Header", "AnotherValue" }
+        };
+        client.ConfigureGet("/test", new TestResponse("OK"), HttpStatusCode.OK, headers);
+        using var httpClient = new HttpClient();
+        // Act
+        var response = await httpClient.GetAsync("http://localhost:7914/test");
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.Headers.Contains("X-Custom-Header").Should().BeTrue();
+        response.Headers.GetValues("X-Custom-Header").First().Should().Be("HeaderValue");
+        response.Headers.Contains("X-Another-Header").Should().BeTrue();
+        response.Headers.GetValues("X-Another-Header").First().Should().Be("AnotherValue");
+    }
+
     private static async Task ValidateResponse(
         HttpResponseMessage response,
         string expectedMessage,
