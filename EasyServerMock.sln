@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36414.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyServerMock.Client", "EasyServerMock.Client\EasyServerMock.Client.csproj", "{8142753C-AA53-69F5-BF81-C2694BEE2BD0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyServerMock.Client.IntegrationTests", "EasyServerMock.Client.IntegrationTests\EasyServerMock.Client.IntegrationTests.csproj", "{9037D7CA-DC94-48DF-B440-0D9C4D926B1F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8142753C-AA53-69F5-BF81-C2694BEE2BD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8142753C-AA53-69F5-BF81-C2694BEE2BD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8142753C-AA53-69F5-BF81-C2694BEE2BD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8142753C-AA53-69F5-BF81-C2694BEE2BD0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9037D7CA-DC94-48DF-B440-0D9C4D926B1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9037D7CA-DC94-48DF-B440-0D9C4D926B1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9037D7CA-DC94-48DF-B440-0D9C4D926B1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9037D7CA-DC94-48DF-B440-0D9C4D926B1F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AA5D37A0-B9A4-426B-9714-D69D365EA0BF}
+	EndGlobalSection
+EndGlobal
