@@ -52,8 +52,12 @@ public partial class ServerMockClient(int port = 7900) : IDisposable
                                 h => h.Key,
                                 h => h.Value.ToString()
                             );
+                            var queryParameters = context.Request.Query.ToDictionary(
+                                q => q.Key,
+                                q => q.Value.ToString()
+                            );
 
-                            _requests.Add(new(method, path, payload, headers));
+                            _requests.Add(new(method, path, payload, headers, queryParameters));
                             if (
                                 _endpointResponses.TryGetValue(path, out var mockResponses)
                                 && mockResponses.TryGetValue(method, out var mockResponse)

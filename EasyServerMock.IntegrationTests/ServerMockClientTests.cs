@@ -29,7 +29,11 @@ public class ServerMockClientTests
         httpContent.Headers.ContentType = new MediaTypeHeaderValue(MediaTypeNames.Application.Json);
 
         // Act
-        var response = await httpClient.PostAsync("http://localhost:7901/test", httpContent);
+        var response = await httpClient.PostAsync(
+            "http://localhost:7901/test",
+            httpContent,
+            TestContext.Current.CancellationToken
+        );
 
         // Assert
         await ValidateResponse(response, message);
@@ -54,12 +58,15 @@ public class ServerMockClientTests
         // Act
         var response = await httpClient.PostAsync(
             "http://localhost:7902/unconfigured",
-            httpContent
+            httpContent,
+            TestContext.Current.CancellationToken
         );
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        var content = await response.Content.ReadAsStringAsync();
+        var content = await response.Content.ReadAsStringAsync(
+            TestContext.Current.CancellationToken
+        );
         content.Should().Be("Not configured");
         var requests = client.GetRequests("/unconfigured");
         requests.Should().HaveCount(1);
@@ -108,8 +115,14 @@ public class ServerMockClientTests
 
         // Act
         using var httpClient = new HttpClient();
-        var response1 = await httpClient.GetAsync("http://localhost:7905/test1");
-        var response2 = await httpClient.GetAsync("http://localhost:7905/test2");
+        var response1 = await httpClient.GetAsync(
+            "http://localhost:7905/test1",
+            TestContext.Current.CancellationToken
+        );
+        var response2 = await httpClient.GetAsync(
+            "http://localhost:7905/test2",
+            TestContext.Current.CancellationToken
+        );
 
         // Assert
         var requests = client.GetRequests();
@@ -133,8 +146,14 @@ public class ServerMockClientTests
 
         // Act
         using var httpClient = new HttpClient();
-        var response1 = await httpClient.GetAsync("http://localhost:7906/test");
-        var response2 = await httpClient.GetAsync("http://localhost:7907/test");
+        var response1 = await httpClient.GetAsync(
+            "http://localhost:7906/test",
+            TestContext.Current.CancellationToken
+        );
+        var response2 = await httpClient.GetAsync(
+            "http://localhost:7907/test",
+            TestContext.Current.CancellationToken
+        );
 
         // Assert
         var requests1 = client1.GetRequests();
@@ -155,7 +174,10 @@ public class ServerMockClientTests
         using var httpClient = new HttpClient();
 
         // Act
-        var response = await httpClient.GetAsync("http://localhost:7908/test");
+        var response = await httpClient.GetAsync(
+            "http://localhost:7908/test",
+            TestContext.Current.CancellationToken
+        );
 
         // Assert
         await ValidateResponse(response, "Created", HttpStatusCode.Created);
@@ -173,7 +195,12 @@ public class ServerMockClientTests
         // Act
         var tasks = Enumerable
             .Range(0, 10)
-            .Select(async _ => await httpClient.GetAsync("http://localhost:7909/test"));
+            .Select(async _ =>
+                await httpClient.GetAsync(
+                    "http://localhost:7909/test",
+                    TestContext.Current.CancellationToken
+                )
+            );
         await Task.WhenAll(tasks);
 
         // Assert
@@ -211,7 +238,10 @@ public class ServerMockClientTests
         using var httpClient = new HttpClient();
 
         // Act
-        await httpClient.GetAsync("http://localhost:7911/test");
+        await httpClient.GetAsync(
+            "http://localhost:7911/test",
+            TestContext.Current.CancellationToken
+        );
         var requestsBeforeClear = client.GetRequests("/test");
         client.Reset();
         var requestsAfterClear = client.GetRequests("/test");
@@ -239,20 +269,47 @@ public class ServerMockClientTests
         using var httpClient = new HttpClient();
 
         // Act
-        var getResponse = await httpClient.GetAsync("http://localhost:7912/test");
-        var postResponse = await httpClient.PostAsync("http://localhost:7912/test", null);
-        var patchResponse = await httpClient.PatchAsync("http://localhost:7912/test", null);
-        var putResponse = await httpClient.PutAsync("http://localhost:7912/test", null);
-        var deleteResponse = await httpClient.DeleteAsync("http://localhost:7912/test");
+        var getResponse = await httpClient.GetAsync(
+            "http://localhost:7912/test",
+            TestContext.Current.CancellationToken
+        );
+        var postResponse = await httpClient.PostAsync(
+            "http://localhost:7912/test",
+            null,
+            TestContext.Current.CancellationToken
+        );
+        var patchResponse = await httpClient.PatchAsync(
+            "http://localhost:7912/test",
+            null,
+            TestContext.Current.CancellationToken
+        );
+        var putResponse = await httpClient.PutAsync(
+            "http://localhost:7912/test",
+            null,
+            TestContext.Current.CancellationToken
+        );
+        var deleteResponse = await httpClient.DeleteAsync(
+            "http://localhost:7912/test",
+            TestContext.Current.CancellationToken
+        );
         var headRequest = new HttpRequestMessage(HttpMethod.Head, "http://localhost:7912/test");
-        var headResponse = await httpClient.SendAsync(headRequest);
+        var headResponse = await httpClient.SendAsync(
+            headRequest,
+            TestContext.Current.CancellationToken
+        );
         var optionsRequest = new HttpRequestMessage(
             HttpMethod.Options,
             "http://localhost:7912/test"
         );
-        var optionsResponse = await httpClient.SendAsync(optionsRequest);
+        var optionsResponse = await httpClient.SendAsync(
+            optionsRequest,
+            TestContext.Current.CancellationToken
+        );
         var traceRequest = new HttpRequestMessage(HttpMethod.Trace, "http://localhost:7912/test");
-        var traceResponse = await httpClient.SendAsync(traceRequest);
+        var traceResponse = await httpClient.SendAsync(
+            traceRequest,
+            TestContext.Current.CancellationToken
+        );
 
         // Assert
         await ValidateResponse(getResponse, "GET OK");
@@ -287,7 +344,10 @@ public class ServerMockClientTests
         var guid = Guid.NewGuid().ToString();
         httpClient.DefaultRequestHeaders.Add("X-Request-ID", guid);
         // Act
-        var response = await httpClient.GetAsync("http://localhost:7913/test");
+        var response = await httpClient.GetAsync(
+            "http://localhost:7913/test",
+            TestContext.Current.CancellationToken
+        );
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var requests = client.GetRequests("/test", HttpMethod.Get);
@@ -309,13 +369,37 @@ public class ServerMockClientTests
         client.ConfigureGet("/test", new TestResponse("OK"), HttpStatusCode.OK, headers);
         using var httpClient = new HttpClient();
         // Act
-        var response = await httpClient.GetAsync("http://localhost:7914/test");
+        var response = await httpClient.GetAsync(
+            "http://localhost:7914/test",
+            TestContext.Current.CancellationToken
+        );
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Headers.Contains("X-Custom-Header").Should().BeTrue();
         response.Headers.GetValues("X-Custom-Header").First().Should().Be("HeaderValue");
         response.Headers.Contains("X-Another-Header").Should().BeTrue();
         response.Headers.GetValues("X-Another-Header").First().Should().Be("AnotherValue");
+    }
+
+    [Fact]
+    public async Task ServerMockClient_ShouldConfigureQueryParameter()
+    {
+        // Arrange
+        var client = new ServerMockClient(7915);
+        await client.StartAsync();
+        client.ConfigureGet("/test", new TestResponse("OK"), HttpStatusCode.OK);
+        using var httpClient = new HttpClient();
+        // Act
+        var response = await httpClient.GetAsync(
+            "http://localhost:7915/test?user=test&lang=en",
+            TestContext.Current.CancellationToken
+        );
+        // Assert
+        await ValidateResponse(response, "OK");
+        var requests = client.GetRequests("/test", HttpMethod.Get);
+        requests.Should().HaveCount(1);
+        requests[0].QueryParameters["user"].Should().Be("test");
+        requests[0].QueryParameters["lang"].Should().Be("en");
     }
 
     private static async Task ValidateResponse(
@@ -328,7 +412,9 @@ public class ServerMockClientTests
         response.StatusCode.Should().Be(statusCode);
         if (expectJson)
         {
-            var content = await response.Content.ReadFromJsonAsync<TestResponse>();
+            var content = await response.Content.ReadFromJsonAsync<TestResponse>(
+                TestContext.Current.CancellationToken
+            );
             content.Should().NotBeNull();
             content.Message.Should().Be(expectedMessage);
         }
