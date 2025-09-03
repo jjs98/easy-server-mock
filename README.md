@@ -1,5 +1,6 @@
 [![GitHub License](https://img.shields.io/github/license/jjs98/easy-server-mock)](LICENSE)
 [![NuGet Version](https://img.shields.io/nuget/v/EasyServerMock)](https://www.nuget.org/packages/EasyServerMock/)
+[![Codecov](https://img.shields.io/codecov/c/github/jjs98/easy-server-mock?style=for-the-badge)](https://codecov.io/gh/jjs98/easy-server-mock)
 
 # EasyServerMock
 

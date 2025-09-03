@@ -25,7 +25,21 @@ jobs:
         run: dotnet restore ./EasyServerMock.sln
 
       - name: dotnet test
-        run: dotnet test ./EasyServerMock.sln
+        run: dotnet test ./EasyServerMock.sln --collect:"XPlat Code Coverage"
+
+      - name: Upload test results to Codecov
+        uses: codecov/test-results-action@v1
+        if: ${{ !cancelled() }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./EasyServerMock.IntegrationTests/TestResults/**/coverage.cobertura.xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        if: ${{ !cancelled() }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./EasyServerMock.IntegrationTests/TestResults/**/coverage.cobertura.xml
 
       - name: dotnet build
         run: dotnet build ./EasyServerMock.sln --configuration Release
