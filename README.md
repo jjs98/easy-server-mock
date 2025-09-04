@@ -50,6 +50,11 @@ var headers = new Dictionary<string, string>
 client.Get("/test4").WithResponse(new { Message = "Hello World" }).WithHeaders(headers).Provide();
 ```
 
+Dispose the mock server after tests.
+```csharp
+await client.DisposeAsync();
+```
+
 ## Validation
 
 Retrieve and validate the requests received by the mock server.

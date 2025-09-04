@@ -98,7 +98,7 @@ public class ServerMockClientTests
         await client.StartAsync();
 
         // Act
-        client.Dispose();
+        await client.DisposeAsync();
 
         // Assert
         // If no exception is thrown, the test passes
@@ -496,6 +496,29 @@ public class ServerMockClientTests
         client.GetRequests("/test1").Should().HaveCount(0);
         client.GetRequests(HttpMethod.Post).Should().HaveCount(0);
         client.GetRequests().Should().HaveCount(1);
+    }
+
+    [Fact]
+    public async Task ServerMockClient_ShouldRestartServer_WhenStartCalledAfterDispose()
+    {
+        // Arrange
+        var client = new ServerMockClient(7920);
+        await client.StartAsync();
+        client.Get("/test").WithResponse(new TestResponse("OK")).Provide();
+        using var httpClient = new HttpClient();
+
+        // Act
+        await client.DisposeAsync();
+        await client.StartAsync();
+
+        var response = await httpClient.GetAsync(
+            "http://localhost:7920/test",
+            TestContext.Current.CancellationToken
+        );
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        client.GetRequests("/test", HttpMethod.Get).Should().HaveCount(1);
     }
 
     private static async Task ValidateResponse(

@@ -10,7 +10,7 @@ namespace EasyServerMock;
 /// <summary>
 /// Create a client to connect to a server mock instance
 /// </summary>
-public partial class ServerMockClient(int port = 7900) : IDisposable
+public partial class ServerMockClient(int port = 7900) : IAsyncDisposable
 {
     private IHost? _host;
     private readonly ConcurrentDictionary<
@@ -97,15 +97,23 @@ public partial class ServerMockClient(int port = 7900) : IDisposable
     }
 
     /// <summary>
-    /// Disable the server mock instance
+    /// Dispose the server mock instance
     /// </summary>
-    public void Dispose()
+    /// <returns></returns>
+    public async Task DisposeAsync()
     {
+        await ((IAsyncDisposable)this).DisposeAsync();
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        Reset();
         if (_host != null)
         {
-            _host.StopAsync().GetAwaiter().GetResult();
+            await _host.StopAsync();
             _host.Dispose();
             _host = null;
+            _started = false;
         }
         GC.SuppressFinalize(this);
     }
